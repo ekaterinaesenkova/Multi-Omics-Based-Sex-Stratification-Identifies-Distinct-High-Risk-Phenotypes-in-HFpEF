@@ -18,16 +18,6 @@
 #
 # ---- Configuration ------------------------------------------------------
 # Set these paths/credentials for your own environment (e.g. via a local
-# .Renviron file that is NOT committed to git) before running.
-project_dir          <- Sys.getenv("PROJECT_DIR", unset = ".")
-myovasc_sql_dir      <- Sys.getenv("MYOVASC_SQL_DIR", unset = "path/to/myovasc/r_sql")
-ghs_sql_dir          <- Sys.getenv("GHS_SQL_DIR", unset = "path/to/ghs/r_sql")
-shared_functions_dir <- Sys.getenv("SHARED_FUNCTIONS_DIR", unset = "path/to/shared/r_functions")
-data_dir             <- Sys.getenv("PROJECT_DATA_DIR", unset = file.path(project_dir, "data"))
-output_dir           <- Sys.getenv("PROJECT_OUTPUT_DIR", unset = file.path(project_dir, "output"))
-db_user              <- Sys.getenv("DB_USER", unset = "your_db_username")
-
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 # ---------------------------------------------------------------------------
 
 setwd(project_dir)
@@ -50,23 +40,15 @@ library(readxl)
 library(caret)
 library(Hmisc)
 # load baseline dataset MYOVASC
-setwd(myovasc_sql_dir)
-source("Read_SQL_MyoVasc_BL_v11.R")
 
 dall1 = read_SQL_MyoVasc_BL(proteins=T, lipids = T, user = db_user, ATC_7_digits = 'B01AC06')
-baseline = read.csv2(file.path(data_dir, "olink_6_BL_FU2_FU4_co-transformed_imp_BL_2024-02-29.csv"))
+baseline = read.csv2(file.path(data_dir, "file.csv"))
 setwd(project_dir)
 id_lid = data.frame(dall1$v11_sid01,dall1$lid)   
 colnames(id_lid) = c("ID", "LID")
 
 # Data loading GHS
 Sys.setlocale("LC_ALL", "GER") # switching to German locale
-suppressWarnings(eval(parse(file = file.path(ghs_sql_dir, "Read_SQL_Data_1_S_jch.r"))))
-suppressWarnings(eval(parse(file = file.path(ghs_sql_dir, "Read_SQL_GHS_FU_jch.r"))))
-#suppressWarnings(eval(parse(file = file.path(ghs_sql_dir, "Read_SQL_GHS_C6_KKB.r"))))
-ghs_bas <- read_SQL_A6_data(reload = T, read_proteins = T, u_id = db_user)
-#ghs_fu2 <- read_SQL_B6_data(reload = T, read_proteins = T, u_id = db_user)
-#ghs_fu4 <- read_SQL_C6_data(reload = T, read_proteins = T, u_id = db_user)
 
 dattr_ghs = attributes(ghs_bas)
 whf_ghs <- read.csv(file.path(ghs_sql_dir, "whf_ghs.csv"), sep = ";")
